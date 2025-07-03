@@ -1,0 +1,80 @@
+import java.util.ArrayList;
+import java.util.Scanner;
+
+public class GradeManager {
+    private ArrayList<String> grades = new ArrayList<>();
+    private String[] archive = new String[100];
+    private int archiveIndex = 0;
+
+    public void menu() {
+        Scanner scanner = new Scanner(System.in);
+        boolean running = true;
+
+        while (running) {
+            System.out.println("\n-- Student Grade Tracker --");
+            System.out.println("1. Add grade");
+            System.out.println("2. View grades");
+            System.out.println("3. Archive and remove a grade");
+            System.out.println("4. View archive");
+            System.out.println("5. Exit");
+
+            int choice = InputValidator.getUserChoice(1, 5);
+            switch (choice) {
+                case 1 -> addGrade();
+                case 2 -> viewGrades();
+                case 3 -> archiveGrade();
+                case 4 -> viewArchive();
+                case 5 -> running = false;
+            }
+        }
+    }
+
+    private void addGrade() {
+        Scanner scanner = new Scanner(System.in);
+        System.out.print("Enter student name and grade (e.g., John:90): ");
+        grades.add(scanner.nextLine());
+    }
+
+    private void viewGrades() {
+        if (grades.isEmpty()) {
+            System.out.println("No grades recorded.");
+        } else {
+            for (int i = 0; i < grades.size(); i++) {
+                System.out.println(i + ": " + grades.get(i));
+            }
+        }
+    }
+
+    private void archiveGrade() {
+        if (grades.isEmpty()) {
+            System.out.println("No grades to archive.");
+            return;
+        }
+
+        viewGrades();
+        System.out.print("Enter index to archive: ");
+        int index = InputValidator.getUserChoice(0, grades.size() - 1);
+        try {
+            archive[archiveIndex++] = grades.remove(index);
+        } catch (IndexOutOfBoundsException e) {
+            System.out.println("Invalid index.");
+        }
+    }
+
+    private void viewArchive() {
+        for (int i = 0; i < archiveIndex; i++) {
+            System.out.println(i + ": " + archive[i]);
+        }
+    }
+
+    public void saveData() {
+        FileHandler.saveArrayList(grades, "grades.txt");
+        FileHandler.saveArray(archive, archiveIndex, "archive.txt");
+    }
+
+    public void loadData() {
+        grades = FileHandler.loadArrayList("grades.txt");
+        archive = FileHandler.loadArray("archive.txt");
+        archiveIndex = FileHandler.getLoadedSize();
+    }
+}
